@@ -1,0 +1,7 @@
+# Archivos y carpetas que no quiero subir
+bin/
+obj/
+*.exe
+*.o
+*.depend
+*.layout
