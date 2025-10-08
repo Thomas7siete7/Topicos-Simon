@@ -1,0 +1,30 @@
+warning: in the working copy of 'simon.layout', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/simon.layout b/simon.layout[m
+[1mindex 499ed8b..9657ad5 100644[m
+[1m--- a/simon.layout[m
+[1m+++ b/simon.layout[m
+[36m@@ -2,19 +2,19 @@[m
+ <CodeBlocks_layout_file>[m
+ 	<FileVersion major="1" minor="0" />[m
+ 	<ActiveTarget name="Debug" />[m
+[31m-	<File name="main.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">[m
+[32m+[m	[32m<File name="main.c" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">[m
+ 		<Cursor>[m
+[31m-			<Cursor1 position="797" topLine="27" />[m
+[32m+[m			[32m<Cursor1 position="797" topLine="0" />[m
+ 		</Cursor>[m
+ 	</File>[m
+[31m-	<File name="simon.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">[m
+[32m+[m	[32m<File name="simon.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">[m
+ 		<Cursor>[m
+[31m-			<Cursor1 position="25027" topLine="621" />[m
+[32m+[m			[32m<Cursor1 position="25027" topLine="613" />[m
+ 		</Cursor>[m
+ 	</File>[m
+ 	<File name="simon.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">[m
+ 		<Cursor>[m
+[31m-			<Cursor1 position="18050" topLine="98" />[m
+[32m+[m			[32m<Cursor1 position="18050" topLine="285" />[m
+ 		</Cursor>[m
+ 	</File>[m
+ </CodeBlocks_layout_file>[m
