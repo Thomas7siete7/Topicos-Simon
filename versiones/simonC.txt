@@ -29,7 +29,7 @@ const SDL_Color colores[8] = {
     {255, 255,   0, 255}, // Amarillo
     {  0, 255,   0, 255}, // Verde
     {255,   0, 255, 255}, // Rosa
-    {128,   0, 128, 255},  // Púrpura
+    {128,   0, 128, 255},  // PÃºrpura
     {  0,   0, 255, 255}, // Azul
     {255, 128,   0, 255} // Naranja
 };
@@ -137,9 +137,9 @@ bool cargar_medios(Juego* juego) {
 void loop_principal(Juego* juego) {
     bool corriendo = true;
     EstadoJuego estado = MENU;
-    char jugador[100] = "ingresá tu nombre...";
+    char jugador[100] = "ingresÃ¡ tu nombre...";
     char teclas[100] = "entre 3 y 8 teclas";
-    char duracion[100] = "máximo 2000ms";
+    char duracion[100] = "mÃ¡ximo 2000ms";
     char timbre[100] = "piano, cello, synth";
     SDL_Rect botonMusica = {970, 670, 10 ,10};
 
@@ -148,9 +148,6 @@ void loop_principal(Juego* juego) {
 
     inicializarPartida(&datosPartida, juego);
     inicializarPartida(&datosJugador, juego);
-
-    dataMelodias melodias;
-
 
     bool partidaIniciada = 0;
 
@@ -187,13 +184,7 @@ void loop_principal(Juego* juego) {
                     convertirTxtInt(&datosPartida, duracion);
                     partidaIniciada = 1;
                 }
-
-                if(datosPartida.modo == MODO_MOZART || datosPartida.modo == MODO_DESAFIO)
-                {
-                    iniciarMelodias(&melodias);
-                }
-
-                manejoJuego(&evento, &estado, &datosPartida, &datosJugador, juego, numTeclas, &datosPartida.duracion, &partidaIniciada, &melodias);
+                manejoJuego(&evento, &estado, &datosPartida, &datosJugador, juego, numTeclas, &datosPartida.duracion, &partidaIniciada);
                 break;
             case CREDITOS: manejoCreditos(&evento, &estado); break;
             default: break;
@@ -387,7 +378,7 @@ void renderizarCreditos(SDL_Renderer* renderer, Texto* titulo, Texto* boton, Tex
     renderizarTxt(renderer, chico, "Maria Luz Fraschetto", &nombreMLF, COLOR_TITULO);
     renderizarTxt(renderer, chico, "Thomas Marin Rombola", &nombreTMR, COLOR_TITULO);
     renderizarTxt(renderer, chico, "Matias Antunez", &nombreMA, COLOR_TITULO);
-    renderizarTxt(renderer, chico, "copyright © Grupo Saturno, Septiembre - Octubre 2025.", &copyright, COLOR_TEXTO);
+    renderizarTxt(renderer, chico, "copyright Â© Grupo Saturno, Septiembre - Octubre 2025.", &copyright, COLOR_TEXTO);
 }
 
 
@@ -419,13 +410,13 @@ void manejoConfiguracion(SDL_Event* evento, EstadoJuego* estado, char* teclas, c
         int mouseY = evento->button.y;
 
         if (SDL_PointInRect(&(SDL_Point){mouseX, mouseY}, &botonAtras)) {
-            printf("botón atrás presionado!\n");
+            printf("botÃ³n atrÃ¡s presionado!\n");
             *estado = MENU;
         }
 
         else if (SDL_PointInRect(&(SDL_Point){mouseX, mouseY}, &botonJugar)) {
             if (configuracionCompleta(teclas, duracion, timbre, modo)) {
-                printf("¡Juego iniciado!\n");
+                printf("Â¡Juego iniciado!\n");
                 *estado = JUEGO;
             } else {
                 printf("Complete todos los campos antes de jugar.\n");
@@ -442,7 +433,7 @@ void manejoConfiguracion(SDL_Event* evento, EstadoJuego* estado, char* teclas, c
         else if (SDL_PointInRect(&(SDL_Point){mouseX, mouseY}, &campoDuracion)) {
             campo = DURACION;
             SDL_StartTextInput();
-            if (strcmp(duracion, "máximo 2000ms") == 0)
+            if (strcmp(duracion, "mÃ¡ximo 2000ms") == 0)
                 duracion[0] = '\0';
         }
 
@@ -453,10 +444,10 @@ void manejoConfiguracion(SDL_Event* evento, EstadoJuego* estado, char* teclas, c
                 timbre[0] = '\0';
         }
 
-        // --- SELECCIÓN DE MODO DE JUEGO ---
+        // --- SELECCIÃ“N DE MODO DE JUEGO ---
         else if (SDL_PointInRect(&(SDL_Point){mouseX, mouseY}, &botonSchonberg)) {
             *modo = MODO_SCHONBERG;
-            printf("Modo seleccionado: SCHÖNBERG\n");
+            printf("Modo seleccionado: SCHÃ–NBERG\n");
         } else if (SDL_PointInRect(&(SDL_Point){mouseX, mouseY}, &botonMozart)) {
             *modo = MODO_MOZART;
             printf("Modo seleccionado: MOZART\n");
@@ -465,7 +456,7 @@ void manejoConfiguracion(SDL_Event* evento, EstadoJuego* estado, char* teclas, c
             printf("Modo seleccionado: UNIVERSE\n");
         } else if (SDL_PointInRect(&(SDL_Point){mouseX, mouseY}, &botonDesafio)) {
             *modo = MODO_DESAFIO;
-            printf("Modo seleccionado: DESAFÍO\n");
+            printf("Modo seleccionado: DESAFÃO\n");
         }
 
         else {
@@ -627,18 +618,18 @@ void renderizarConfiguracion(SDL_Renderer* renderer, Texto* titulo, Texto* boton
 
     renderizarTitulo(renderer, titulo, "CONFIGURACION", &configTitulo);
     renderizarAtras(renderer, boton, &botonAtras);
-    renderizarTxt(renderer, normal, "Número de teclas:", &txtTeclas, COLOR_TITULO);
+    renderizarTxt(renderer, normal, "NÃºmero de teclas:", &txtTeclas, COLOR_TITULO);
     renderizarTxt(renderer, normal, teclas, &campoTeclas, COLOR_TEXTO);
-    renderizarTxt(renderer, normal, "Duración inicial:", &txtDuracion, COLOR_TITULO);
+    renderizarTxt(renderer, normal, "DuraciÃ³n inicial:", &txtDuracion, COLOR_TITULO);
     renderizarTxt(renderer, normal, duracion, &campoDuracion, COLOR_TEXTO);
     renderizarTxt(renderer, normal, "Timbre de sonido:", &txtTimbre, COLOR_TITULO);
     renderizarTxt(renderer, normal, timbre, &campoTimbre, COLOR_TEXTO);
     renderizarTxt(renderer, normal, "Modo de juego:", &txtModo, COLOR_TITULO);
     renderizarTxt(renderer, normal, "MOZART", &botonMozart, COLOR_TEXTO);
-    renderizarTxt(renderer, normal, "SCHÖNBERG", &botonSchonberg, COLOR_TEXTO);
+    renderizarTxt(renderer, normal, "SCHÃ–NBERG", &botonSchonberg, COLOR_TEXTO);
     renderizarTxt(renderer, normal, "UNIVERSE", &botonUniverse, COLOR_TEXTO);
-    renderizarTxt(renderer, normal, "DESAFÍO", &botonDesafio, COLOR_TEXTO);
-    renderizarTxt(renderer, normal, "¡JUGAR!", &botonJugar, COLOR_TEXTO);
+    renderizarTxt(renderer, normal, "DESAFÃO", &botonDesafio, COLOR_TEXTO);
+    renderizarTxt(renderer, normal, "Â¡JUGAR!", &botonJugar, COLOR_TEXTO);
 }
 
 const int (*seleccionTablero(const int numTeclas))[LADO_MATRIZ] {
@@ -659,7 +650,6 @@ void inicializarPartida(datosJuego* datos, Juego* juego) {
     datos->cantElem = 0;
     datos->lim = TAM_VEC;
     datos->vec = malloc(datos->lim * sizeof(int));
-    datos->nivel = 0;
     if(!datos->vec) {
         printf("error al inicializar vectores de partida\n");
         finalizar(juego);
@@ -729,7 +719,6 @@ int guardarLuces(datosJuego* datos, const int luz) {
     int* ult = datos->vec + datos->cantElem;
     *ult = luz;
     datos -> cantElem++;
-    datos -> nivel++;
 
     return TODO_OK;
 }
@@ -742,9 +731,10 @@ int compararAvance(datosJuego* partida, datosJuego* jugador) {
     return TODO_OK;
 }
 
-void CalcularMozart(dataMelodias* melodias, char* nombre)
+void CalcularMozart(datosJuego* datos, char*)
 {
-
+    dataMelodias melodias;
+    vecMelodias vecMel;
 
     FILE* arch = fopen("Melodias/melodias.txt", "rt");
     if(arch == NULL)
@@ -755,6 +745,9 @@ void CalcularMozart(dataMelodias* melodias, char* nombre)
         printf("cinco palabras, crack.\n");
     }
 
+    iniciarMelodias(&melodias);
+    iniciarVecMelodias(&vecMel);
+
     char linea[256];
     int i;
     while(fgets(linea, sizeof(linea), arch))
@@ -762,10 +755,10 @@ void CalcularMozart(dataMelodias* melodias, char* nombre)
         i = 1;
         fprintf(stderr, "%s\n", linea);
 
-        melodias -> cantNotas = 0;
-        melodias -> nombre[0] = '\0';
+        melodias.cantNotas = 0;
+        melodias.nombre[0] = '\0';
 
-        melodias -> cantMaxNotas = linea[i - 1] - '0';
+        melodias.cantMaxNotas = linea[i - 1] - '0';
 
         printf("\nlinea[i] (%c) != '\\n' && linea[i] (%c) != '0' && linea[i+1] (%c) != 0\n", linea[i], linea[i], linea[i+1] );
 
@@ -776,18 +769,18 @@ void CalcularMozart(dataMelodias* melodias, char* nombre)
             if(linea[i] != '0')
             {
 
-                if (melodias -> cantNotas >= melodias -> max) {
-                    if (agrandarMelodias(melodias) == FALLO) {
+                if (melodias.cantNotas >= melodias.max) {
+                    if (agrandarMelodias(&melodias) == FALLO) {
                         fprintf(stderr, "No se pudo agrandar melodia\n");
                         fclose(arch);
-
-                        liberarMelodias(melodias);
+                        liberarVecMelodias(&vecMel);
+                        liberarMelodias(&melodias);
                         return ;
                     }
                 }
 
-                *(melodias -> melodia + melodias -> cantNotas) = 10+(linea[i]-'0');
-                melodias -> cantNotas++;
+                *(melodias.melodia + melodias.cantNotas) = 10+(linea[i]-'0');
+                melodias.cantNotas++;
             }
             i++;
         }
@@ -802,39 +795,58 @@ void CalcularMozart(dataMelodias* melodias, char* nombre)
         while(linea[i] != '\n' && linea[i] != '\0')
         {
             if (j < 49) {
-                *(melodias -> nombre + j) = linea[i];
+                *(melodias.nombre + j) = linea[i];
                 j++;
             }
             i++;
         }
-        *(melodias -> nombre + j) = '\0';
+        *(melodias.nombre + j) = '\0';
+
+
+        if (pushMelodia(&vecMel, &melodias) == FALLO) {
+            fprintf(stderr, "No pude guardar la melodia en el vector\n");
+            fclose(arch);
+            liberarVecMelodias(&vecMel);
+            liberarMelodias(&melodias);
+            return ;
+        }
+
+        printf("Guardada: %s (%d notas)\n", vecMel.vec[vecMel.cantElem-1].nombre, vecMel.vec[vecMel.cantElem-1].cantNotas);
     }
 
     fclose(arch);
 
+
+    /*
+    for (int k = 0; k < vecMel.cantElem; k++) {
+        printf("Mel %d: %s\n", k, vecMel.vec[k].nombre);
+        for (int r = 0; r < vecMel.vec[k].cantNotas; r++) {
+            printf(" %d", vecMel.vec[k].melodia[r]);
+        }
+        printf("\n");
+    }
+    */
+
+
+    liberarVecMelodias(&vecMel);
+    liberarMelodias(&melodias);
+
     return;
 }
 
+void CalcularSchomberg(datosJuego* datos, int luz){
+    guardarLuces(datos, luz);
+}
 
-
-void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, const int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias) {
+void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, const int numTeclas, int* duracion, bool* partidaIniciada) {
     static bool iniciado = false;
-    static int nivel_actual = 1;
 
     const int (*tablero)[LADO_MATRIZ] = seleccionTablero(numTeclas);
     if (!tablero) return;
 
     if (!iniciado) {
 
-        if(partida -> modo == MODO_SCHONBERG)
-        {
-            guardarLuces(partida, calcularLuces(numTeclas));
-        }
-        else if(partida -> modo == MODO_MOZART)
-        {
-            CalcularMozart(melodias, "melodias.txt");
-            guardarLuces(partida, *(melodias -> melodia + partida -> nivel));
-        }
+        if(partida -> modo == MODO_SCHONBERG) {CalcularSchomberg(partida, calcularLuces(numTeclas));}
         pintarIluminados(juego, numTeclas, partida, tablero, *duracion);
         iniciado = true;
     }
@@ -865,15 +877,7 @@ void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, da
                 *duracion *= DISMINUIRPORCENTAJE;
 
                 printf("Quiero ver la velocidad: %i\n", *duracion);
-                if(partida -> modo == MODO_SCHONBERG)
-                {
-                    guardarLuces(partida, calcularLuces(numTeclas));
-                }
-                else if(partida -> modo == MODO_MOZART)
-                {
-                    CalcularMozart(melodias, "melodias.txt");
-                    guardarLuces(partida, *(melodias -> melodia + partida -> nivel));
-                }
+                guardarLuces(partida, calcularLuces(numTeclas));
                 pintarIluminados(juego, numTeclas, partida, tablero, *duracion);
             }
         }
@@ -937,12 +941,7 @@ void renderizarJuego(SDL_Renderer* renderer, Texto* boton, const int (*tablero)[
 void pintarIluminados(Juego* juego, const int numTeclas, datosJuego* partida, const int (*tablero)[LADO_MATRIZ], int duracion) {
     int luz;
 
-    if(partida -> modo == MODO_MOZART && partida -> nivel == partida -> cantElem)
-    {
-        printf("La performance ha sido completada.");
-        return;
-    }
-    for (int i = 0; i < partida->nivel; i++) {
+    for (int i = 0; i < partida->cantElem; i++) {
         luz = partida->vec[i];
 
         renderizarJuego(juego->renderer, &juego->boton, tablero, -1);
