@@ -3308,7 +3308,7 @@
 	<stdlib.h>
 	<string.h>
 
-1760060237 c:\users\osusuario\desktop\simon-tp\simon.h
+1760115037 c:\users\osusuario\desktop\simon-tp\simon.h
 	<stdlib.h>
 	<stdio.h>
 	<stdbool.h>
@@ -3775,6 +3775,6 @@
 	"begin_code.h"
 	"close_code.h"
 
-1760108535 source:c:\users\osusuario\desktop\simon-tp\simon.c
+1760115741 source:c:\users\osusuario\desktop\simon-tp\simon.c
 	"simon.h"
 

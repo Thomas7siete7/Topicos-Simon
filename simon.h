@@ -297,7 +297,7 @@ int calcularToque(SDL_Event* evento, const int (*tablero)[LADO_MATRIZ]);
 int calcularLuces(const int numTeclas);
 int guardarLuces(datosJuego* datos, const int luz);
 int compararAvance(datosJuego* partida, datosJuego* jugador);
-void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, const int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias);
+void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias);
 void renderizarJuego(SDL_Renderer* renderer, Texto* boton, const int (*tablero)[LADO_MATRIZ], int iluminar);
 void pintarIluminados(Juego* juego, const int numTeclas, datosJuego* partida, const int (*tablero)[LADO_MATRIZ], int duracion);
 bool configuracionCompleta(const char* teclas, const char* duracion, const char* timbre, TipoModoJuego* modo);

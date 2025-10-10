@@ -153,83 +153,93 @@ void loop_principal(Juego* juego) {
     iniciarMelodias(&melodias);
 
     bool partidaIniciada = 0;
+    int numTeclas = 0;
 
 
     while (corriendo) {
-    SDL_Event evento;
-    while (SDL_PollEvent(&evento)) {
-        switch (evento.type) {
-            case SDL_QUIT:
-                corriendo = false;
-                break;
-            case SDL_KEYDOWN:
-                if (evento.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                    corriendo = false;
-                else if (evento.key.keysym.scancode == SDL_SCANCODE_M) {
-                    if (Mix_PausedMusic()) Mix_ResumeMusic();
-                    else Mix_PauseMusic();
+        SDL_Event evento;
+        while (SDL_PollEvent(&evento))
+            {
+                switch (evento.type) {
+                    case SDL_QUIT:
+                        corriendo = false;
+                        break;
+                    case SDL_KEYDOWN:
+                        if (evento.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                            corriendo = false;
+                        else if (evento.key.keysym.scancode == SDL_SCANCODE_M) {
+                            if (Mix_PausedMusic()) Mix_ResumeMusic();
+                            else Mix_PauseMusic();
+                        }
+                        break;
+                    default:
+                        break;
                 }
+
+                switch (estado) {
+                    case MENU: manejoMenu(&evento, &estado, jugador); break;
+                    case STATS: manejoEstadisticas(&evento, &estado); break;
+
+
+                    case CONFIG: manejoConfiguracion(&evento, &estado, teclas, duracion, timbre, &datosPartida.modo); break;
+                    case JUEGO:
+                        Mix_PauseMusic();
+                        if(datosPartida.modo == MODO_MOZART)
+                        {
+                            if(!partidaIniciada)
+                            {
+                                CalcularMozart(&melodias, "melodias.txt");
+                                numTeclas = melodias.cantMaxNotas;
+                            }
+
+                        }else{
+                            numTeclas = atoi(teclas);
+                        }
+
+                        if(!partidaIniciada){
+                            convertirTxtInt(&datosPartida, duracion);
+                            partidaIniciada = 1;
+                        }
+
+                        manejoJuego(&evento, &estado, &datosPartida, &datosJugador, juego, numTeclas, &datosPartida.duracion, &partidaIniciada, &melodias);
+                        break;
+                    case CREDITOS: manejoCreditos(&evento, &estado); break;
+                    default: break;
+                }
+            }
+
+
+        if (estado != JUEGO) {
+            SDL_RenderClear(juego->renderer);
+            SDL_RenderCopy(juego->renderer, juego->fondo, NULL, NULL);
+        }
+
+
+        switch (estado) {
+            case MENU:
+                renderizarMenu(juego->renderer, &juego->titulo, &juego->normal, jugador);
+                break;
+            case CREDITOS:
+                renderizarCreditos(juego->renderer, &juego->titulo, &juego->boton, &juego->chico);
+                break;
+            case STATS:
+                renderizarEstadisticas(juego->renderer, &juego->titulo, &juego->boton, &juego->chico);
+                break;
+            case CONFIG:
+                renderizarConfiguracion(juego->renderer, &juego->titulo, &juego->boton, &juego->normal, teclas, duracion, timbre);
+                break;
+            case JUEGO:
+                SDL_RenderClear(juego->renderer);
+                SDL_RenderCopy(juego->renderer, juego->fondo, NULL, NULL);
+                renderizarJuego(juego->renderer, &juego->boton, seleccionTablero(numTeclas), -1);
                 break;
             default:
                 break;
         }
 
-        switch (estado) {
-            case MENU: manejoMenu(&evento, &estado, jugador); break;
-            case STATS: manejoEstadisticas(&evento, &estado); break;
-
-
-            case CONFIG: manejoConfiguracion(&evento, &estado, teclas, duracion, timbre, &datosPartida.modo); break;
-            case JUEGO:
-                Mix_PauseMusic();
-                int numTeclas = atoi(teclas);
-                if(!partidaIniciada){
-                    convertirTxtInt(&datosPartida, duracion);
-                    partidaIniciada = 1;
-                }
-
-
-
-
-                manejoJuego(&evento, &estado, &datosPartida, &datosJugador, juego, numTeclas, &datosPartida.duracion, &partidaIniciada, &melodias);
-                break;
-            case CREDITOS: manejoCreditos(&evento, &estado); break;
-            default: break;
-        }
+        SDL_RenderPresent(juego->renderer);
+        SDL_Delay(16);  // ~60 FPS
     }
-
-
-    if (estado != JUEGO) {
-        SDL_RenderClear(juego->renderer);
-        SDL_RenderCopy(juego->renderer, juego->fondo, NULL, NULL);
-    }
-
-
-    switch (estado) {
-        case MENU:
-            renderizarMenu(juego->renderer, &juego->titulo, &juego->normal, jugador);
-            break;
-        case CREDITOS:
-            renderizarCreditos(juego->renderer, &juego->titulo, &juego->boton, &juego->chico);
-            break;
-        case STATS:
-            renderizarEstadisticas(juego->renderer, &juego->titulo, &juego->boton, &juego->chico);
-            break;
-        case CONFIG:
-            renderizarConfiguracion(juego->renderer, &juego->titulo, &juego->boton, &juego->normal, teclas, duracion, timbre);
-            break;
-        case JUEGO:
-            SDL_RenderClear(juego->renderer);
-            SDL_RenderCopy(juego->renderer, juego->fondo, NULL, NULL);
-            renderizarJuego(juego->renderer, &juego->boton, seleccionTablero(atoi(teclas)), -1);
-            break;
-        default:
-            break;
-    }
-
-    SDL_RenderPresent(juego->renderer);
-    SDL_Delay(16);  // ~60 FPS
-}
 
 
     free(datosJugador.vec); // REVUSAR BIEN DONDE PONER ESTOS FREE !!
@@ -520,9 +530,15 @@ void manejoConfiguracion(SDL_Event* evento, EstadoJuego* estado, char* teclas, c
 
 
 bool configuracionCompleta(const char* teclas, const char* duracion, const char* timbre, TipoModoJuego* modo) {
-    if (!validarCampo(TECLAS, teclas)) return false;
-    if (!validarCampo(DURACION, duracion)) return false;
     if(!validarModo(modo))return false;
+
+    if(*modo != MODO_MOZART )
+    {
+        if (!validarCampo(TECLAS, teclas)) return false;
+    }
+
+    if (!validarCampo(DURACION, duracion)) return false;
+
     //if (!validarCampo(TIMBRE, timbre)) return false;
     return true;
 }
@@ -747,7 +763,13 @@ int compararAvance(datosJuego* partida, datosJuego* jugador) {
 
 void CalcularMozart(dataMelodias* melodias, char* nombre)
 {
-    FILE* arch = fopen("Melodias/melodias.txt", "rt");
+    char path[256];
+    int n = snprintf(path, sizeof(path), "Melodias/%s", nombre);
+    if (n < 0 || n >= (int)sizeof(path)) {
+        fprintf(stderr, "Error: ruta demasiado larga\n");
+        return;
+    }
+    FILE* arch = fopen(path, "rt");
     if (!arch) {
         fprintf(stderr, "Error: archivo no encontrado\n");
         return;
@@ -810,26 +832,31 @@ void CalcularMozart(dataMelodias* melodias, char* nombre)
 }
 
 
-void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, const int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias) {
+void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias) {
     static bool iniciado = false;
-    static int nivel_actual = 1;
 
-    const int (*tablero)[LADO_MATRIZ] = seleccionTablero(numTeclas);
-    if (!tablero) return;
 
-    if (!iniciado) {
-
+    if(!iniciado)
+    {
         if(partida -> modo == MODO_SCHONBERG)
         {
             guardarLuces(partida, calcularLuces(numTeclas));
         }
         else if(partida -> modo == MODO_MOZART)
         {
-            CalcularMozart(melodias, "melodias.txt");
-
             guardarLuces(partida, *(melodias -> melodia + partida -> nivel));
         }
+    }
+    if(partida->modo == MODO_MOZART)
+    {
+        printf("el numero de teclas antes era de: %i\n", numTeclas);
+        numTeclas = melodias->cantMaxNotas;
+        printf("el numero de teclas ahora era de: %i\n", numTeclas);
+    }
+    const int (*tablero)[LADO_MATRIZ] = seleccionTablero(numTeclas);
+    if (!tablero) return;
 
+    if (!iniciado) {
         pintarIluminados(juego, numTeclas, partida, tablero, *duracion);
 
         iniciado = true;
