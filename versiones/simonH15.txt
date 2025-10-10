@@ -112,6 +112,7 @@ typedef struct {
     int duracion;
     int lim;
     TipoModoJuego modo;
+    int nivel;
 } datosJuego;
 
 static const int tresTeclas[LADO_MATRIZ][LADO_MATRIZ] = {
@@ -296,15 +297,14 @@ int calcularToque(SDL_Event* evento, const int (*tablero)[LADO_MATRIZ]);
 int calcularLuces(const int numTeclas);
 int guardarLuces(datosJuego* datos, const int luz);
 int compararAvance(datosJuego* partida, datosJuego* jugador);
-void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, const int numTeclas, int* duracion, bool* partidaIniciada);
+void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias);
 void renderizarJuego(SDL_Renderer* renderer, Texto* boton, const int (*tablero)[LADO_MATRIZ], int iluminar);
 void pintarIluminados(Juego* juego, const int numTeclas, datosJuego* partida, const int (*tablero)[LADO_MATRIZ], int duracion);
 bool configuracionCompleta(const char* teclas, const char* duracion, const char* timbre, TipoModoJuego* modo);
 bool validarModo(TipoModoJuego* modo);
 
 void convertirTxtInt(datosJuego* datos, char* text);
-void CalcularMozart(datosJuego* datos, char*);
-void CalcularSchomberg(datosJuego* datos, int luz);
+void CalcularMozart(dataMelodias* melodias, char* nombre);
 void CalcularUniverse(datosJuego* datos, int luz);
 void CalcularDesafio(datosJuego* datos, int luz);
 

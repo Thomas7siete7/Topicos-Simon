@@ -184,6 +184,7 @@ void loop_principal(Juego* juego) {
                     case CONFIG: manejoConfiguracion(&evento, &estado, teclas, duracion, timbre, &datosPartida.modo); break;
                     case JUEGO:
                         Mix_PauseMusic();
+                        printf("estoy dentro del juego.");
                         if(datosPartida.modo == MODO_MOZART)
                         {
                             if(!partidaIniciada)
@@ -193,6 +194,7 @@ void loop_principal(Juego* juego) {
                             }
 
                         }else{
+
                             numTeclas = atoi(teclas);
                         }
 
@@ -208,12 +210,10 @@ void loop_principal(Juego* juego) {
                 }
             }
 
-
         if (estado != JUEGO) {
             SDL_RenderClear(juego->renderer);
             SDL_RenderCopy(juego->renderer, juego->fondo, NULL, NULL);
         }
-
 
         switch (estado) {
             case MENU:
@@ -229,6 +229,12 @@ void loop_principal(Juego* juego) {
                 renderizarConfiguracion(juego->renderer, &juego->titulo, &juego->boton, &juego->normal, teclas, duracion, timbre);
                 break;
             case JUEGO:
+                printf("fallan los render\n");
+                printf("la cantidad de teclas es: %i\n", numTeclas);
+                if(numTeclas == 0)
+                {
+                    numTeclas = 3;
+                }
                 SDL_RenderClear(juego->renderer);
                 SDL_RenderCopy(juego->renderer, juego->fondo, NULL, NULL);
                 renderizarJuego(juego->renderer, &juego->boton, seleccionTablero(numTeclas), -1);
@@ -242,7 +248,7 @@ void loop_principal(Juego* juego) {
     }
 
 
-    free(datosJugador.vec); // REVUSAR BIEN DONDE PONER ESTOS FREE !!
+    free(datosJugador.vec); // REViSAR BIEN DONDE PONER ESTOS FREE !!
     free(datosPartida.vec);
     finalizar(juego);
 }
@@ -763,13 +769,8 @@ int compararAvance(datosJuego* partida, datosJuego* jugador) {
 
 void CalcularMozart(dataMelodias* melodias, char* nombre)
 {
-    char path[256];
-    int n = snprintf(path, sizeof(path), "Melodias/%s", nombre);
-    if (n < 0 || n >= (int)sizeof(path)) {
-        fprintf(stderr, "Error: ruta demasiado larga\n");
-        return;
-    }
-    FILE* arch = fopen(path, "rt");
+
+    FILE* arch = fopen("Melodias/melodias.txt", "rt");
     if (!arch) {
         fprintf(stderr, "Error: archivo no encontrado\n");
         return;
@@ -835,7 +836,7 @@ void CalcularMozart(dataMelodias* melodias, char* nombre)
 void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias) {
     static bool iniciado = false;
 
-
+    printf("holaa");
     if(!iniciado)
     {
         if(partida -> modo == MODO_SCHONBERG)
