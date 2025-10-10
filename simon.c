@@ -150,7 +150,7 @@ void loop_principal(Juego* juego) {
     inicializarPartida(&datosJugador, juego);
 
     dataMelodias melodias;
-
+    iniciarMelodias(&melodias);
 
     bool partidaIniciada = 0;
 
@@ -188,10 +188,8 @@ void loop_principal(Juego* juego) {
                     partidaIniciada = 1;
                 }
 
-                if(datosPartida.modo == MODO_MOZART || datosPartida.modo == MODO_DESAFIO)
-                {
-                    iniciarMelodias(&melodias);
-                }
+
+
 
                 manejoJuego(&evento, &estado, &datosPartida, &datosJugador, juego, numTeclas, &datosPartida.duracion, &partidaIniciada, &melodias);
                 break;
@@ -685,6 +683,7 @@ int vaciarDatos(datosJuego* datos) {
         return FALLO;
 
     datos->cantElem = 0;
+    datos ->nivel = 0;
     return TODO_OK;
 }
 
@@ -726,10 +725,14 @@ int guardarLuces(datosJuego* datos, const int luz) {
         return FALLO;
     }
 
+    printf("nivel antes: %i\n", datos ->nivel);
+
     int* ult = datos->vec + datos->cantElem;
     *ult = luz;
     datos -> cantElem++;
     datos -> nivel++;
+
+    printf("nivel ahora: %i\n", datos ->nivel);
 
     return TODO_OK;
 }
@@ -744,77 +747,67 @@ int compararAvance(datosJuego* partida, datosJuego* jugador) {
 
 void CalcularMozart(dataMelodias* melodias, char* nombre)
 {
-
-
     FILE* arch = fopen("Melodias/melodias.txt", "rt");
-    if(arch == NULL)
-    {
-        printf("error, archivo no encontrado");
+    if (!arch) {
+        fprintf(stderr, "Error: archivo no encontrado\n");
         return;
-    }else{
-        printf("cinco palabras, crack.\n");
     }
 
     char linea[256];
-    int i;
-    while(fgets(linea, sizeof(linea), arch))
-    {
-        i = 1;
-        fprintf(stderr, "%s\n", linea);
-
-        melodias -> cantNotas = 0;
-        melodias -> nombre[0] = '\0';
-
-        melodias -> cantMaxNotas = linea[i - 1] - '0';
-
-        printf("\nlinea[i] (%c) != '\\n' && linea[i] (%c) != '0' && linea[i+1] (%c) != 0\n", linea[i], linea[i], linea[i+1] );
-
-
-        while (linea[i] != '\0' && !(linea[i] == '0' && linea[i+1] == '0')) {
-
-            printf("El caracter es: %c y el numero: %i\n", linea[i], linea[i]-'0');
-            if(linea[i] != '0')
-            {
-
-                if (melodias -> cantNotas >= melodias -> max) {
-                    if (agrandarMelodias(melodias) == FALLO) {
-                        fprintf(stderr, "No se pudo agrandar melodia\n");
-                        fclose(arch);
-
-                        liberarMelodias(melodias);
-                        return ;
-                    }
-                }
-
-                *(melodias -> melodia + melodias -> cantNotas) = 10+(linea[i]-'0');
-                melodias -> cantNotas++;
-            }
-            i++;
-        }
-
-
-        if(linea[i] == '0' && linea[i + 1] == '0'){
-            i += 2;
-        }
-
-
-        int j = 0;
-        while(linea[i] != '\n' && linea[i] != '\0')
-        {
-            if (j < 49) {
-                *(melodias -> nombre + j) = linea[i];
-                j++;
-            }
-            i++;
-        }
-        *(melodias -> nombre + j) = '\0';
+    if (!fgets(linea, sizeof(linea), arch)) {
+        fprintf(stderr, "Error: no se pudo leer la línea\n");
+        fclose(arch);
+        return;
     }
 
+
+    int i = 0;
+
+    while (linea[i] && (linea[i] < '0' || linea[i] > '9'))
+        i++;
+
+    if (linea[i] == '\0') {
+        fprintf(stderr, "Línea inválida: no se encontraron números.\n");
+        fclose(arch);
+        return;
+    }
+
+    melodias->cantMaxNotas = linea[i] - '0';
+    printf("cantMaxNotas: %i\n", melodias->cantMaxNotas);
+
+    i++;
+
+    while (linea[i] != '\0' && !(linea[i] == '0' && linea[i + 1] == '0')) {
+
+        if (linea[i] > '0' && linea[i] <= '9') {
+            if (melodias->cantNotas >= melodias->max) {
+                if (agrandarMelodias(melodias) == FALLO) {
+                    fprintf(stderr, "No se pudo agrandar melodia\n");
+                    liberarMelodias(melodias);
+                    fclose(arch);
+                    return;
+                }
+            }
+
+            *(melodias->melodia + melodias->cantNotas) = 10 + (linea[i] - '0');
+            melodias->cantNotas++;
+        }
+        i++;
+    }
+
+
+    if (linea[i] == '0' && linea[i + 1] == '0')
+        i += 2;
+
+
+    int k = 0;
+    while (linea[i] && linea[i] != '\n' && k < 49) {
+        melodias->nombre[k++] = linea[i++];
+    }
+    melodias->nombre[k] = '\0';
+
     fclose(arch);
-
-    return;
 }
-
 
 
 void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, datosJuego* jugador, Juego* juego, const int numTeclas, int* duracion, bool* partidaIniciada, dataMelodias* melodias) {
@@ -833,15 +826,25 @@ void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, da
         else if(partida -> modo == MODO_MOZART)
         {
             CalcularMozart(melodias, "melodias.txt");
+
             guardarLuces(partida, *(melodias -> melodia + partida -> nivel));
         }
+
         pintarIluminados(juego, numTeclas, partida, tablero, *duracion);
+
         iniciado = true;
     }
+    printf("La melodia es:\n");
+    for(int i = 0; i<melodias->cantNotas; i++)
+    {
+        printf("%i", melodias->melodia[i]);
+    }
+    printf("fin melodia\n");
 
     if (evento->type == SDL_MOUSEBUTTONDOWN) {
         int clic = calcularToque(evento, tablero);
         if (clic > 10 && clic < 19) {
+            printf("jugador:\n");
             guardarLuces(jugador, clic);
             renderizarJuego(juego->renderer, &juego->boton, tablero, clic);
             SDL_RenderPresent(juego->renderer);
@@ -855,29 +858,42 @@ void manejoJuego(SDL_Event* evento, EstadoJuego* estado, datosJuego* partida, da
                 SDL_Delay(1000);
                 vaciarDatos(partida);
                 vaciarDatos(jugador);
+                if(partida -> modo == MODO_MOZART)
+                {
+                    liberarMelodias(melodias);
+                    iniciarMelodias(melodias);
+                }
+
                 iniciado = false;
                 *partidaIniciada = 0;
                 *estado = CONFIG;
                 return;
             }
-            else if (jugador->cantElem == partida->cantElem) {
+
+
+            if(resultado == TODO_OK && jugador -> cantElem == partida -> cantElem) {
                 vaciarDatos(jugador);
                 *duracion *= DISMINUIRPORCENTAJE;
 
-                printf("Quiero ver la velocidad: %i\n", *duracion);
                 if(partida -> modo == MODO_SCHONBERG)
                 {
                     guardarLuces(partida, calcularLuces(numTeclas));
                 }
                 else if(partida -> modo == MODO_MOZART)
                 {
-                    CalcularMozart(melodias, "melodias.txt");
-                    guardarLuces(partida, *(melodias -> melodia + partida -> nivel));
+
+                    printf("melodias:\n");
+                    for(int i = 0; i<melodias->cantNotas; i++)
+                    {
+                        printf("%i", melodias->melodia[i]);
+                    }
+                    guardarLuces(partida, melodias -> melodia[partida -> nivel]);
                 }
                 pintarIluminados(juego, numTeclas, partida, tablero, *duracion);
             }
         }
     }
+
 
     while (SDL_PollEvent(evento)) {}
     SDL_FlushEvents(SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
@@ -937,7 +953,7 @@ void renderizarJuego(SDL_Renderer* renderer, Texto* boton, const int (*tablero)[
 void pintarIluminados(Juego* juego, const int numTeclas, datosJuego* partida, const int (*tablero)[LADO_MATRIZ], int duracion) {
     int luz;
 
-    if(partida -> modo == MODO_MOZART && partida -> nivel == partida -> cantElem)
+    if(partida -> modo == MODO_MOZART && partida -> nivel == partida -> lim)
     {
         printf("La performance ha sido completada.");
         return;
@@ -1058,6 +1074,7 @@ int iniciarMelodias(dataMelodias* mel)
 {
     mel -> melodia = malloc(256 * sizeof(int));
     mel -> nombre = malloc(50 * sizeof(char));
+    mel -> nombre[0] = '\0';
     mel -> cantNotas = 0;
     mel -> max = 256;
     mel -> cantMaxNotas = 0;
@@ -1156,12 +1173,10 @@ int pushMelodia(vecMelodias* vm, const dataMelodias* src)
 
 void liberarMelodias(dataMelodias* m)
 {
-    if (m->melodia) free(m->melodia);
-    if (m->nombre)  free(m->nombre);
-    m->melodia = NULL;
-    m->nombre  = NULL;
+    free(m->melodia);
+    free(m->nombre);
+
     m->cantNotas = 0;
-    m->max = 0;
     m->cantMaxNotas = 0;
 }
 
